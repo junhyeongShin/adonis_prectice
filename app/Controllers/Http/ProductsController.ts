@@ -10,7 +10,7 @@ export default class ProductsController extends BaseController {
       await request
         .validate({ schema: productValidator })
         .then(() => {
-          const { title, price, content, count, phone, seller_id, option } = request.requestBody
+          const { title, price, content, count, phone, seller_id, option } = request['requestData']
           const product = new Product({
             title,
             price,
@@ -35,7 +35,7 @@ export default class ProductsController extends BaseController {
 
   public async getOne({ response, request }: HttpContextContract) {
     try {
-      const product = await Product.findById(request.requestData.id)
+      const product = await Product.findById(request['requestData']['id'])
       if (!product) {
         this.error422(0, response)
       }
@@ -72,7 +72,7 @@ export default class ProductsController extends BaseController {
       await request
         .validate({ schema: productValidator })
         .then(() => {
-          const { title, price, content, remain_count, count, seller_id, option, id } = request.requestBody
+          const { title, price, content, remain_count, count, seller_id, option, id } = request['requestData']
           const product = Product.findById(id)
           if (!product) {
             this.error422(0, response)
@@ -103,7 +103,7 @@ export default class ProductsController extends BaseController {
 
   public async delOne({ response, request }: HttpContextContract) {
     try {
-      await Product.remove({_id : request.requestData.id})
+      await Product.remove({ _id: request['requestData']['id'] })
         .then(() => {
           response.status(204).json('')
         })

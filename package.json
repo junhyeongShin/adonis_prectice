@@ -4,10 +4,7 @@
   "private": true,
   "scripts": {
     "build": "node ace build --production",
-    "start": "node server.js",
-    "dev": "node ace serve --watch",
-    "lint": "eslint . --ext=.ts",
-    "format": "prettier --write ."
+    "dev": "node ace serve --watch"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^5.3.5",

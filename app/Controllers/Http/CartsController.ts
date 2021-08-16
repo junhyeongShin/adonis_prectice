@@ -10,7 +10,7 @@ export default class CartsController extends BaseController {
       await request
         .validate({ schema: cartValidator })
         .then(() => {
-          const { user_id, product_id, count } = request.requestBody
+          const { user_id, product_id, count } = request['requestData']
           const cart = new Cart({
             user_id,
             product_id,
@@ -30,7 +30,7 @@ export default class CartsController extends BaseController {
 
   public async getOne({ response, request }: HttpContextContract) {
     try {
-      const cart = await Cart.findById(request.requestData.id)
+      const cart = await Cart.findById(request['requestData']['id'])
       if (!cart) {
         this.error422(0, response)
       }
@@ -83,7 +83,7 @@ export default class CartsController extends BaseController {
       await request
         .validate({ schema: cartValidator })
         .then(() => {
-          const { name, aka_name, email, phone, pw, address, id } = request.requestData
+          const { name, aka_name, email, phone, pw, address, id } = request['requestData']
           const cart = Cart.findById(id)
           if (!cart) {
             this.error422(0, response)
@@ -108,7 +108,7 @@ export default class CartsController extends BaseController {
 
   public async delOne({ response, request }: HttpContextContract) {
     try {
-      await Cart.remove({_id : request.requestData.id})
+      await Cart.remove({ _id: request['requestData']['id'] })
         .then(() => {
           response.status(204).json('')
         })
