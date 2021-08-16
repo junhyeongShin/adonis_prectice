@@ -6,7 +6,7 @@ mongoose.Promise = global.Promise
 export default class DatabaseConnector {
   constructor() {}
 
-  private async connect() {
+  public async connect() {
     try {
       const dbUrl: string = mongoConfig.dev_host + '/' + mongoConfig.db
       await mongoose.connect(

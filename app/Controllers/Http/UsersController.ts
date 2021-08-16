@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { User, userValidator } from '../../Model/User'
-import ExceptionHandler from '../../Exceptions/Handler'
+
 import BaseController from '../Http/BaseController'
 import dayjs from 'dayjs'
 
@@ -10,7 +10,7 @@ export default class UsersController extends BaseController {
       await request
         .validate({ schema: userValidator })
         .then(() => {
-          const { name, aka_name, email, phone, pw, address } = request.requestBody
+          const { name, aka_name, email, phone, pw, address } = request['requestData']
           const user = new User({
             name,
             aka_name,
@@ -33,7 +33,7 @@ export default class UsersController extends BaseController {
 
   public async getOne({ response, request }: HttpContextContract) {
     try {
-      const user = await User.findById(request.requestData.id)
+      const user = await User.findById(request['requestData']['id'])
       if (!user) {
         this.error422(0, response)
       }
@@ -60,7 +60,7 @@ export default class UsersController extends BaseController {
       await request
         .validate({ schema: userValidator })
         .then(() => {
-          const { name, aka_name, email, phone, pw, address, id } = request.requestData
+          const { name, aka_name, email, phone, pw, address, id } = request['requestData']
           const user = User.findById(id)
           if (!user) {
             this.error422(0, response)
@@ -86,7 +86,7 @@ export default class UsersController extends BaseController {
 
   public async delOne({ response, request }: HttpContextContract) {
     try {
-      await User.remove({_id : request.requestData.id})
+      await User.remove({ _id: request['requestData']['id'] })
         .then(() => {
           response.status(204).json('')
         })

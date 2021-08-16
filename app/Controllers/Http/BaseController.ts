@@ -5,7 +5,7 @@ export default class BaseController {
   private exceptionHandler = new ExceptionHandler()
   private logger = Logger
 
-  protected async logInfo(messages, request) {
+  protected async logInfo(messages) {
     this.logger.info(messages)
   }
 
