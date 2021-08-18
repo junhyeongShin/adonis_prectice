@@ -57,23 +57,16 @@ export default class UsersController extends BaseController {
 
   public async update({ response, request }: HttpContextContract) {
     try {
-      await request
-        .validate({ schema: userValidator })
+      await request.validate({ schema: userValidator })
+      const { name, aka_name, email, phone, address } = request['requestData']
+      await User.findByIdAndUpdate(request['requestData']['id'], {
+        name: name,
+        aka_name: aka_name,
+        email: email,
+        phone: phone,
+        address: address,
+      })
         .then(() => {
-          const { name, aka_name, email, phone, pw, address, id } = request['requestData']
-          const user = User.findById(id)
-          if (!user) {
-            this.error422(0, response)
-          }
-          user.update({
-            name: name,
-            aka_name: aka_name,
-            email: email,
-            phone: phone,
-            pw: pw,
-            address: address,
-          })
-          console.log('user', user)
           response.status(201).json({ success: true })
         })
         .catch((error) => {
