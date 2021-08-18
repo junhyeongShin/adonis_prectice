@@ -56,7 +56,7 @@ export default class CartsController extends BaseController {
     try {
       const cart = await Cart.aggregate([
         {
-          $match: { user_id: params.user_id },
+          $match: { user_id: params.id },
         },
         {
           $addFields: {
@@ -71,9 +71,44 @@ export default class CartsController extends BaseController {
             as: 'product',
           },
         },
+        {
+          $addFields: {
+            user_oid: {
+              $toObjectId: '$user_id',
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'user',
+            localField: 'user_oid',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $unwind: {
+            path: '$product',
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+          },
+        },
+        {
+          $project: {
+            user_id: '$user_id',
+            product_id: '$product_id',
+            price: '$product.price',
+            address: '$user.address',
+            count: '$count',
+          },
+        },
       ])
       response.status(200).json(cart)
     } catch (error) {
+      console.log(error)
       this.error(error, response)
     }
   }

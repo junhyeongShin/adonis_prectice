@@ -8,7 +8,8 @@ export default class DatabaseConnector {
 
   public async connect() {
     try {
-      const dbUrl: string = mongoConfig.dev_host + '/' + mongoConfig.db
+      // const dbUrl: string = mongoConfig.dev_host + '/' + mongoConfig.db
+      const dbUrl: string = 'mongodb://localhost:27017/shakerr'
       await mongoose.connect(
         dbUrl,
         {
