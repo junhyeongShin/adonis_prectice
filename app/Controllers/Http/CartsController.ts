@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { Cart, cartValidator } from '../../Model/Cart'
+import { Product } from '../../Model/Product'
 
 export default class CartsController extends BaseController {
   public async create({ request, response }: HttpContextContract) {
@@ -141,6 +142,19 @@ export default class CartsController extends BaseController {
     }
   }
 
+  public async increaseCount({ response, params, num }) {
+    try {
+      await Cart.findByIdAndUpdate(params.id, {
+        $inc: { count: num },
+      }).then(() => {
+        console.log(params)
+        response.status(201).json({ success: true })
+      })
+    } catch (error) {
+      this.error(error, response)
+    }
+  }
+
   public async delOne({ response, request }: HttpContextContract) {
     try {
       await Cart.remove({ _id: request['requestData']['id'] })
@@ -150,6 +164,80 @@ export default class CartsController extends BaseController {
         .catch((error) => {
           this.error(error, response)
         })
+    } catch (error) {
+      this.error(error, response)
+    }
+  }
+
+  public async buyCart({ response, params }: HttpContextContract) {
+    try {
+      console.log(params.id)
+      const cart = await Cart.aggregate([
+        {
+          $match: { user_id: params.id },
+        },
+        {
+          $addFields: {
+            product_oid: { $toObjectId: '$product_id' },
+          },
+        },
+        {
+          $lookup: {
+            from: 'product',
+            localField: 'product_oid',
+            foreignField: '_id',
+            as: 'product',
+          },
+        },
+        {
+          $addFields: {
+            user_oid: {
+              $toObjectId: '$user_id',
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'user',
+            localField: 'user_oid',
+            foreignField: '_id',
+            as: 'user',
+          },
+        },
+        {
+          $unwind: {
+            path: '$product',
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+          },
+        },
+        {
+          $project: {
+            user_id: '$user_id',
+            product_id: '$product_id',
+            price: '$product.price',
+            address: '$user.address',
+            count: '$count',
+          },
+        },
+      ])
+
+      for (let i = 0; i < cart.length; i++) {
+        let product = Product.findById(cart[i]['product_id'])
+
+        if (cart[i]['count'] > product['count']) {
+          response.status(409).json({ success: false })
+          break
+        }
+      }
+      //TODO:어떤걸 해야할지 생각해보자.
+      //1. 유저의 정보가 필요한가?
+      //2. 다른 api로 전송해줘야 하니까 필요하다
+      //3. 아니다 그거는 그때 다시 유저의 정보를 가져 오는게 편하다.
+      response.status(200).json({ success: true })
     } catch (error) {
       this.error(error, response)
     }
